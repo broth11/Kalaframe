@@ -1,0 +1,186 @@
+.kalalight-shell {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #020617;
+  color: #ffffff;
+  isolation: isolate;
+}
+
+.kalalight-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #020617;
+}
+
+.kalalight-stage > .lava-visualizer,
+.kalalight-stage > .lissajous-visualizer,
+.kalalight-stage > .inkblot-visualizer,
+.kalalight-stage > .inkblot-svg-visualizer,
+.kalalight-stage > .facemelt-visualizer,
+.kalalight-stage > .facemelt-svg-visualizer,
+.kalalight-stage > canvas {
+  z-index: 1;
+}
+
+.kalalight-countdown-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  padding: 6vw;
+}
+
+.kalalight-countdown-stack {
+  display: grid;
+  justify-items: center;
+  gap: clamp(18px, 3vh, 32px);
+  pointer-events: auto;
+}
+
+.kalalight-time-input,
+.kalalight-time-display {
+  width: min(86vw, 920px);
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  font-size: clamp(84px, 18vw, 260px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  text-align: center;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.62),
+    0 12px 30px rgba(0, 0, 0, 0.54);
+  outline: none;
+}
+
+.kalalight-time-input::selection {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.kalalight-start-button {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    background 180ms ease;
+  backdrop-filter: blur(10px);
+}
+
+.kalalight-start-button.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.kalalight-start-button:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.kalalight-edge-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.kalalight-edge-button {
+  position: absolute;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: clamp(32px, 5vw, 72px);
+  line-height: 1;
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+  transition: color 160ms ease, transform 160ms ease;
+}
+
+.kalalight-edge-button:hover,
+.kalalight-edge-button:focus-visible {
+  color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.04);
+}
+
+.kalalight-edge-left {
+  left: clamp(10px, 2vw, 28px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.kalalight-edge-right {
+  right: clamp(10px, 2vw, 28px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.kalalight-edge-up {
+  top: clamp(8px, 2vh, 24px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.kalalight-edge-down {
+  bottom: clamp(8px, 2vh, 24px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.kalalight-toolbar-rail {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(26px, 5vh, 52px);
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(8, 13, 28, 0.44);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.kalalight-toolbar-rail.visible,
+.kalalight-toolbar-rail:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.kalalight-toolbar-rail button {
+  min-width: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 800;
+}
+
+.kalalight-toolbar-rail button:hover,
+.kalalight-toolbar-rail button:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+}
