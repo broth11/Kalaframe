@@ -165,11 +165,11 @@
 }
 
 .kalalight-toolbar-rail button {
-  min-width: 48px;
-  min-height: 42px;
+  width: 48px;
+  height: 48px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
-  padding: 10px 12px;
+  padding: 0;
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.9);
   font-weight: 800;
@@ -205,6 +205,13 @@
   height: 15px;
   border: 2px solid currentColor;
   border-radius: 4px;
+}
+
+.kalalight-icon-reset::before {
+  content: "⟲";
+  font-size: 2.4rem;
+  line-height: 1;
+  transform: translate(-0.05em, -0.1em);
 }
 
 .kalalight-icon-projector::after {

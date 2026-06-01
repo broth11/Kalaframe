@@ -20,14 +20,6 @@ function FullscreenIcon({ isFullscreen }) {
   );
 }
 
-function ResetIcon() {
-  return (
-    <svg aria-hidden="true" className="kalalight-rail-icon" viewBox="0 0 24 24">
-      <path d="M3 12a9 9 0 1 0 3-6.7" />
-      <path d="M3 4v6h6" />
-    </svg>
-  );
-}
 
 export function KalalightToolbarRail({
   visible,
@@ -80,9 +72,7 @@ export function KalalightToolbarRail({
       >
         <FullscreenIcon isFullscreen={isFullscreen} />
       </button>
-      <button type="button" aria-label="Reset timer" title="Reset timer" onClick={onReset}>
-        <ResetIcon />
-      </button>
+      <button type="button" className="kalalight-icon-reset" aria-label="Reset timer" title="Reset timer" onClick={onReset} />
     </div>
   );
 }
