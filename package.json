@@ -1,0 +1,28 @@
+{
+  "name": "kalaframe",
+  "private": true,
+  "version": "0.2.0-mvp",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "gsap": "^3.15.0",
+    "p5": "latest",
+    "pixi.js": "^7.4.3",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint-plugin-react-refresh": "latest",
+    "globals": "latest"
+  }
+}
