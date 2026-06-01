@@ -134,12 +134,6 @@
   transform: translateX(-50%);
 }
 
-.kalalight-edge-down {
-  bottom: clamp(8px, 2vh, 24px);
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 .kalalight-toolbar-rail {
   position: absolute;
   left: 50%;

@@ -314,7 +314,6 @@ export function KalalightView() {
       if (event.key === "ArrowLeft") cycleVisualizer(-1);
       if (event.key === "ArrowRight") cycleVisualizer(1);
       if (event.key === "ArrowUp") cycleIntensity(1);
-      if (event.key === "ArrowDown") cycleIntensity(-1);
       if (event.key === " " || event.key === "Enter") {
         event.preventDefault();
         pauseOrResumeOrStart();
@@ -350,8 +349,7 @@ export function KalalightView() {
       <KalalightEdgeControls
         onPreviousVisualizer={() => cycleVisualizer(-1)}
         onNextVisualizer={() => cycleVisualizer(1)}
-        onIncreaseIntensity={() => cycleIntensity(1)}
-        onDecreaseIntensity={() => cycleIntensity(-1)}
+        onCycleIntensity={() => cycleIntensity(1)}
       />
       <KalalightToolbarRail
         visible={toolbarVisible || toolbarPinned}

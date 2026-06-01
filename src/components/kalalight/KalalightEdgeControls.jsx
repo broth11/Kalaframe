@@ -1,8 +1,7 @@
 export function KalalightEdgeControls({
   onPreviousVisualizer,
   onNextVisualizer,
-  onIncreaseIntensity,
-  onDecreaseIntensity,
+  onCycleIntensity,
 }) {
   return (
     <div className="kalalight-edge-controls" aria-label="Visualizer and intensity controls">
@@ -25,18 +24,11 @@ export function KalalightEdgeControls({
       <button
         type="button"
         className="kalalight-edge-button kalalight-edge-up"
-        aria-label="Increase visual intensity"
-        onClick={onIncreaseIntensity}
+        aria-label="Cycle visual intensity"
+        title="Cycle visual intensity"
+        onClick={onCycleIntensity}
       >
         ↑
-      </button>
-      <button
-        type="button"
-        className="kalalight-edge-button kalalight-edge-down"
-        aria-label="Decrease visual intensity"
-        onClick={onDecreaseIntensity}
-      >
-        ↓
       </button>
     </div>
   );
