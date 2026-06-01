@@ -4,7 +4,7 @@ import { KalalightView } from "./routes/KalalightView.jsx";
 
 export default function App() {
   const { pathname } = window.location;
-  if (pathname === "/display") return <ProjectorView />;
-  if (pathname === "/full") return <TeacherView />;
+  if (pathname.endsWith("/display")) return <ProjectorView />;
+  if (pathname.endsWith("/full")) return <TeacherView />;
   return <KalalightView />;
 }
