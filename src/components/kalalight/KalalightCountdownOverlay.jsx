@@ -21,6 +21,7 @@ export function KalalightCountdownOverlay({
           <input
             className="kalalight-time-input"
             value={displayValue}
+            placeholder="0:00"
             inputMode="numeric"
             aria-label="Timer duration"
             onChange={(event) => onInputChange(event.target.value)}

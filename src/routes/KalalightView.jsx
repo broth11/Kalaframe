@@ -52,7 +52,7 @@ function createKalalightSetup({
 
 export function KalalightView() {
   // Editing buffer — raw text the user types; normalised on blur/Enter/Start
-  const [timeInputText, setTimeInputText] = useState("0:00");
+  const [timeInputText, setTimeInputText] = useState("");
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [timerState, setTimerState] = useState(() => createIdleTimerState(0));
   const [selectedVisualizerId, setSelectedVisualizerId] = useState(
@@ -141,7 +141,7 @@ export function KalalightView() {
   // Set input text + canonical seconds together (used by +/- minute, reset, etc.)
   function updateInputFromSeconds(nextSeconds) {
     const safeSeconds = Math.max(0, Math.round(nextSeconds));
-    setTimeInputText(safeSeconds === 0 ? "0:00" : formatKalalightInput(safeSeconds));
+    setTimeInputText(safeSeconds === 0 ? "" : formatKalalightInput(safeSeconds));
     setDurationSeconds(safeSeconds);
     setTimerState(createIdleTimerState(safeSeconds));
   }
@@ -154,10 +154,11 @@ export function KalalightView() {
     setTimeInputText(cleaned);
   }
 
-  // Normalise on blur
+  // Normalise on blur; leave blank if empty
   function handleInputBlur() {
+    if (!timeInputText.trim()) return;
     const secs = parseKalalightTime(timeInputText);
-    setTimeInputText(normalizeKalalightDisplay(timeInputText));
+    setTimeInputText(secs > 0 ? formatKalalightInput(secs) : "");
     setDurationSeconds(secs);
     setTimerState(createIdleTimerState(secs));
   }
