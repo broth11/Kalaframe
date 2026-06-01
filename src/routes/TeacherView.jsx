@@ -111,7 +111,7 @@ export function TeacherView() {
 
   function openDisplay() {
     const displayWindow = window.open(
-      "/display",
+      `${import.meta.env.BASE_URL}display`,
       "kalaframe-display",
       "popup=yes,width=1280,height=720",
     );
