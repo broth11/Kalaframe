@@ -261,7 +261,7 @@ export function KalalightView() {
   }
 
   function openProjector() {
-    window.open("/display", "kalaframe-display", "popup=yes,width=1280,height=720")?.focus();
+    window.open(`${import.meta.env.BASE_URL}display`, "kalaframe-display", "popup=yes,width=1280,height=720")?.focus();
   }
 
   async function toggleFullscreen() {
