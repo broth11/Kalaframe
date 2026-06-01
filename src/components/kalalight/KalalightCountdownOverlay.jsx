@@ -7,6 +7,7 @@ export function KalalightCountdownOverlay({
   isValidDuration,
   onInputChange,
   onInputKeyDown,
+  onInputFocus,
   onStart,
 }) {
   const isEditing = status === "idle" || status === "ready";
@@ -24,6 +25,7 @@ export function KalalightCountdownOverlay({
             onChange={(event) => onInputChange(event.target.value)}
             onInput={(event) => onInputChange(event.currentTarget.value)}
             onKeyDown={onInputKeyDown}
+            onFocus={onInputFocus}
           />
         ) : (
           <div className="kalalight-time-display" aria-live="polite">

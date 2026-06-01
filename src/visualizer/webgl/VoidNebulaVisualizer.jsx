@@ -94,23 +94,29 @@ const MODE_CONFIG = {
   exam:   { speed: 0.05, modeId: 2, intensity: 0.55 },
 };
 
-const INTENSITY_MAP = { low: 0.65, normal: 1.0, high: 1.35 };
+const INTENSITY_MAP = {
+  low: { brightness: 0.65, speed: 0.72 },
+  normal: { brightness: 1.0, speed: 1 },
+  high: { brightness: 1.42, speed: 1.28 },
+};
 
 export function VoidNebulaVisualizer({ mode, visualIntensity, reducedMotion }) {
   const config    = MODE_CONFIG[mode] ?? MODE_CONFIG.active;
   const examMode  = mode === "exam";
-  const intensity = config.intensity * (INTENSITY_MAP[examMode ? "low" : (visualIntensity ?? "normal")] ?? 1.0);
-  const speed     = reducedMotion ? config.speed * 0.2 : config.speed;
+  const intensitySetting = INTENSITY_MAP[examMode ? "low" : (visualIntensity ?? "normal")] ?? INTENSITY_MAP.normal;
+  const intensity = config.intensity * intensitySetting.brightness;
+  const speed     = (reducedMotion ? config.speed * 0.2 : config.speed) * intensitySetting.speed;
 
   // Expose current values to rAF closure without re-initialising WebGL
   const propsRef = useRef({ speed, modeId: config.modeId, intensity });
   useEffect(() => {
     const cfg = MODE_CONFIG[mode] ?? MODE_CONFIG.active;
     const em  = mode === "exam";
+    const nextIntensity = INTENSITY_MAP[em ? "low" : (visualIntensity ?? "normal")] ?? INTENSITY_MAP.normal;
     propsRef.current = {
-      speed:     reducedMotion ? cfg.speed * 0.2 : cfg.speed,
+      speed:     (reducedMotion ? cfg.speed * 0.2 : cfg.speed) * nextIntensity.speed,
       modeId:    cfg.modeId,
-      intensity: cfg.intensity * (INTENSITY_MAP[em ? "low" : (visualIntensity ?? "normal")] ?? 1.0),
+      intensity: cfg.intensity * nextIntensity.brightness,
     };
   });
 

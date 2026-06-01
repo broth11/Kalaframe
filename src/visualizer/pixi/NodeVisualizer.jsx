@@ -14,6 +14,12 @@ const PALETTES = {
   exam:   [[51,65,85],[71,85,105],[30,41,59]],
 };
 
+const INTENSITY_SETTINGS = {
+  low: { speed: 0.72, count: 0.72, connect: 0.82, alpha: 0.68, bright: 0.72 },
+  normal: { speed: 1, count: 1, connect: 1, alpha: 1, bright: 1 },
+  high: { speed: 1.38, count: 1.18, connect: 1.12, alpha: 1.25, bright: 1.18 },
+};
+
 function hslToInt(h, s, l) {
   h = ((h % 1) + 1) % 1;
   const a = s * Math.min(l, 1 - l);
@@ -72,19 +78,21 @@ export function NodeVisualizer(props) {
     let elapsed = 0;
 
     app.ticker.add(delta => {
-      const { mode, reducedMotion } = getProps();
+      const { mode, reducedMotion, visualIntensity } = getProps();
       const ms      = MODE_SETTINGS[mode] ?? MODE_SETTINGS.active;
+      const intensity = INTENSITY_SETTINGS[visualIntensity] ?? INTENSITY_SETTINGS.normal;
       const palette = PALETTES[mode] ?? PALETTES.active;
+      const targetCount = Math.max(8, Math.round(ms.nodeCount * intensity.count));
 
-      if (mode !== lastMode) {
+      if (`${mode}:${visualIntensity}` !== lastMode) {
         app.renderer.backgroundColor = ms.bg;
-        buildNodes(ms.nodeCount, palette);
-        lastMode = mode;
+        buildNodes(targetCount, palette);
+        lastMode = `${mode}:${visualIntensity}`;
       }
 
       const W   = app.screen.width;
       const H   = app.screen.height;
-      const spd = reducedMotion ? ms.speed * 0.2 : ms.speed;
+      const spd = (reducedMotion ? ms.speed * 0.2 : ms.speed) * intensity.speed;
       elapsed  += delta * 0.016; // approximate seconds
       const t   = elapsed;
 
@@ -101,18 +109,18 @@ export function NodeVisualizer(props) {
         if (n.y > H)  n.vy = -Math.abs(n.vy);
         n.sp.x     = n.x;
         n.sp.y     = n.y;
-        n.sp.alpha = ms.nodeBright * (0.7 + 0.3 * Math.sin(t * 1.5 + n.hue * 10));
+        n.sp.alpha = Math.min(1, ms.nodeBright * intensity.bright * (0.7 + 0.3 * Math.sin(t * 1.5 + n.hue * 10)));
       });
 
       gfx.clear();
-      const DIST = ms.connectDist;
+      const DIST = ms.connectDist * intensity.connect;
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[i].x - nodes[j].x;
           const dy = nodes[i].y - nodes[j].y;
           const d  = Math.sqrt(dx * dx + dy * dy);
           if (d < DIST) {
-            const a   = (1 - d / DIST) * ms.lineAlpha;
+            const a   = (1 - d / DIST) * ms.lineAlpha * intensity.alpha;
             const col = hslToInt((nodes[i].hue + nodes[j].hue) / 2 + t * 0.04, 0.9, 0.6);
             gfx.lineStyle(0.8 + (1 - d / DIST) * 1.4, col, a);
             gfx.moveTo(nodes[i].x, nodes[i].y);
@@ -122,11 +130,12 @@ export function NodeVisualizer(props) {
       }
     });
 
-    const { mode: m0 } = getProps();
+    const { mode: m0, visualIntensity: i0 } = getProps();
     const ms0 = MODE_SETTINGS[m0] ?? MODE_SETTINGS.active;
+    const intensity0 = INTENSITY_SETTINGS[i0] ?? INTENSITY_SETTINGS.normal;
     app.renderer.backgroundColor = ms0.bg;
-    buildNodes(ms0.nodeCount, PALETTES[m0] ?? PALETTES.active);
-    lastMode = m0;
+    buildNodes(Math.max(8, Math.round(ms0.nodeCount * intensity0.count)), PALETTES[m0] ?? PALETTES.active);
+    lastMode = `${m0}:${i0}`;
   }, []);
 
   const hostRef = usePixiApp(createApp, props);

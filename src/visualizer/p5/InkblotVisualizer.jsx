@@ -11,6 +11,11 @@ const MODE_FILTER = {
 const MODE_TARGET = { calm: 6, active: 9, exam: 4 };
 const MIN_LIVING  = 3;   // blobs below this count are never killed
 const MAX_BLOBS   = 16;
+const INTENSITY_SETTINGS = {
+  low: { speed: 0.62, target: -2, wobble: 0.72 },
+  normal: { speed: 1, target: 0, wobble: 1 },
+  high: { speed: 1.35, target: 2, wobble: 1.28 },
+};
 
 const POINT_COUNT = 48;
 
@@ -123,7 +128,7 @@ export function InkblotVisualizer(props) {
         p.resizeCanvas(host.clientWidth, host.clientHeight);
       };
 
-      function updateBlob(blob, t) {
+      function updateBlob(blob, t, intensity) {
         // Guard against NaN
         if (isNaN(blob.x) || isNaN(blob.y)) {
           blob.x  = 0.50 - Math.abs(gaussianRandom(0, 0.06));
@@ -134,8 +139,8 @@ export function InkblotVisualizer(props) {
         }
 
         // Noise wandering — free to roam the full canvas area.
-        blob.vx += (p.noise(blob.seed * 0.3, blob.y * 1.8,  t * 0.35) - 0.5) * 0.00065;
-        blob.vy += (p.noise(blob.seed + 50,  blob.x * 2.1,  t * 0.40) - 0.5) * 0.00065;
+        blob.vx += (p.noise(blob.seed * 0.3, blob.y * 1.8,  t * 0.35) - 0.5) * 0.00065 * intensity.wobble;
+        blob.vy += (p.noise(blob.seed + 50,  blob.x * 2.1,  t * 0.40) - 0.5) * 0.00065 * intensity.wobble;
 
         // Soft spring toward canvas center (fold x=0.45, vertical y=0.50).
         // Weak enough that noise dominates near the centre — blobs wander freely.
@@ -199,7 +204,7 @@ export function InkblotVisualizer(props) {
         }
       }
 
-      function buildMainBlobPoints(blob, t) {
+      function buildMainBlobPoints(blob, t, intensity) {
         const bx = blob.x * p.width;
         const by = blob.y * p.height;
         const br = blob.radius * Math.min(p.width, p.height);
@@ -219,7 +224,8 @@ export function InkblotVisualizer(props) {
             t * 1.8 + blob.phase,
           );
           const wobble = p.map(lowFreq, 0, 1, 0.38, 1.62)
-                       * p.map(highFreq, 0, 1, 0.78, 1.22);
+                       * p.map(highFreq, 0, 1, 0.78, 1.22)
+                       * intensity.wobble;
           pts.push({ x: bx + ca * br * wobble, y: by + sa * br * wobble });
         }
         return pts;
@@ -238,7 +244,8 @@ export function InkblotVisualizer(props) {
       }
 
       p.draw = () => {
-        const { mode } = getProps();
+        const { mode, visualIntensity } = getProps();
+        const intensity = INTENSITY_SETTINGS[visualIntensity] ?? INTENSITY_SETTINGS.normal;
 
         // Sweep for NaN blobs
         for (const blob of blobs) {
@@ -254,7 +261,7 @@ export function InkblotVisualizer(props) {
 
         if (mode !== currentMode) resetBlobs(mode);
 
-        const target = MODE_TARGET[mode] ?? MODE_TARGET.active;
+        const target = Math.max(MIN_LIVING, (MODE_TARGET[mode] ?? MODE_TARGET.active) + intensity.target);
 
         // Count only blobs that are not already dying
         const livingCount = blobs.filter(b => b.state !== "shrinking").length;
@@ -279,7 +286,7 @@ export function InkblotVisualizer(props) {
         // Remove only once genuinely tiny — no visible pop
         blobs = blobs.filter(b => b.radius > 0.004 && (b.alpha ?? 255) > 2);
 
-        const speedMultiplier = MODE_SPEED[mode] ?? MODE_SPEED.active;
+        const speedMultiplier = (MODE_SPEED[mode] ?? MODE_SPEED.active) * intensity.speed;
         const t = p.millis() * 0.00065 * speedMultiplier;
 
         const targetFilter = MODE_FILTER[mode] ?? MODE_FILTER.active;
@@ -290,7 +297,7 @@ export function InkblotVisualizer(props) {
 
         p.background(255);
 
-        for (const blob of blobs) updateBlob(blob, t);
+        for (const blob of blobs) updateBlob(blob, t, intensity);
 
         // Mild repulsion in pixel space — prevents extreme stacking without
         // destroying the merged central mass.
@@ -314,7 +321,7 @@ export function InkblotVisualizer(props) {
 
         for (const blob of blobs) {
           p.fill(30, 30, 30, blob.alpha ?? 255);
-          const pts = buildMainBlobPoints(blob, t);
+          const pts = buildMainBlobPoints(blob, t, intensity);
           drawPts(pts);
           drawPtsMirrored(pts);
         }

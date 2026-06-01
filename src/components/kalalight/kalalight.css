@@ -172,15 +172,53 @@
 
 .kalalight-toolbar-rail button {
   min-width: 48px;
+  min-height: 42px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
   padding: 10px 12px;
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.9);
   font-weight: 800;
+  position: relative;
+  display: grid;
+  place-items: center;
 }
 
 .kalalight-toolbar-rail button:hover,
 .kalalight-toolbar-rail button:focus-visible {
   background: rgba(255, 255, 255, 0.18);
+}
+
+.kalalight-icon-music::before {
+  content: "♪";
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.kalalight-icon-music.muted::after {
+  content: "";
+  position: absolute;
+  width: 28px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(-42deg);
+}
+
+.kalalight-icon-projector::before {
+  content: "";
+  width: 24px;
+  height: 15px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+}
+
+.kalalight-icon-projector::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateY(13px);
 }

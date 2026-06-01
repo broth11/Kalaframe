@@ -23,6 +23,12 @@ const MODE_SETTINGS = {
   exam:   { speed: 0.008, fadeFrames: 160, pauseFrames: 40, palette: "silver" },
 };
 
+const INTENSITY_SETTINGS = {
+  low: { speed: 0.72, alpha: 0.72, line: 0.82 },
+  normal: { speed: 1, alpha: 1, line: 1 },
+  high: { speed: 1.35, alpha: 1.18, line: 1.22 },
+};
+
 function hslToRGB(h, s, l) {
   h = ((h % 1) + 1) % 1;
   const a = s * Math.min(l, 1 - l);
@@ -131,7 +137,7 @@ export function LissajousVisualizer(props) {
       };
     }
 
-    function drawCurve(alpha, ms) {
+    function drawCurve(alpha, ms, lineScale = 1) {
       const palKey = ms.palette ?? "neon";
       const palFn  = PALETTES[palKey] ?? PALETTES.neon;
       gfx.clear();
@@ -142,7 +148,7 @@ export function LissajousVisualizer(props) {
         const [r, g, b] = palFn(pct, hueShift);
         const col       = (r << 16) | (g << 8) | b;
         const a         = (0.12 + pct * 0.88) * alpha;
-        const lw        = 0.5 + pct * 2.4;
+        const lw        = (0.5 + pct * 2.4) * lineScale;
         gfx.lineStyle(lw, col, a);
         gfx.moveTo(pts[i - 1].x, pts[i - 1].y);
         gfx.lineTo(pts[i].x,     pts[i].y);
@@ -159,24 +165,25 @@ export function LissajousVisualizer(props) {
     }
 
     app.ticker.add(() => {
-      const { mode, reducedMotion } = getProps();
+      const { mode, reducedMotion, visualIntensity } = getProps();
       const ms    = MODE_SETTINGS[mode] ?? MODE_SETTINGS.active;
-      const spd   = reducedMotion ? ms.speed * 0.25 : ms.speed;
+      const intensity = INTENSITY_SETTINGS[visualIntensity] ?? INTENSITY_SETTINGS.normal;
+      const spd   = (reducedMotion ? ms.speed * 0.25 : ms.speed) * intensity.speed;
       const curve = CURVES[curveIdx];
 
       if (state === STATE_DRAWING) {
         theta += spd;
         pts.push(curveXY(theta, curve));
-        drawCurve(1, ms);
-        updateStatusText(curve, 0.86);
+        drawCurve(intensity.alpha, ms, intensity.line);
+        updateStatusText(curve, 0.86 * intensity.alpha);
         if (theta >= tMax) { state = STATE_FADING; fadeFrame = 0; }
 
       } else if (state === STATE_FADING) {
         fadeFrame++;
         const tFade       = fadeFrame / ms.fadeFrames;
         const alpha       = Math.max(0, 1 - tFade * tFade * tFade);
-        drawCurve(alpha, ms);
-        updateStatusText(curve, alpha * 0.86);
+        drawCurve(alpha * intensity.alpha, ms, intensity.line);
+        updateStatusText(curve, alpha * 0.86 * intensity.alpha);
         if (fadeFrame >= ms.fadeFrames) {
           gfx.clear();
           statusText.alpha = 0;

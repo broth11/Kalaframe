@@ -13,6 +13,7 @@ export function KalalightVisualizerStage({
   isValidDuration,
   onInputChange,
   onInputKeyDown,
+  onInputFocus,
   onStart,
 }) {
   const mode = getMode("active");
@@ -37,6 +38,7 @@ export function KalalightVisualizerStage({
         isValidDuration={isValidDuration}
         onInputChange={onInputChange}
         onInputKeyDown={onInputKeyDown}
+        onInputFocus={onInputFocus}
         onStart={onStart}
       />
     </section>

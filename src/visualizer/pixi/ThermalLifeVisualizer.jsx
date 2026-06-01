@@ -8,6 +8,12 @@ const MODE_SETTINGS = {
   exam:   { cellSize: 8, density: 0.28, speed: 2, bg: 0x020305 },
 };
 
+const INTENSITY_SETTINGS = {
+  low: { speed: 1.65, decay: 0.78 },
+  normal: { speed: 1, decay: 1 },
+  high: { speed: 0.62, decay: 1.25 },
+};
+
 function thermalColor(h) {
   if (h > 0.85) return 0xfff0a0;
   if (h > 0.60) return 0xff8800;
@@ -66,8 +72,9 @@ export function ThermalLifeVisualizer(props) {
     lastMode = m0;
 
     app.ticker.add(() => {
-      const { mode, reducedMotion } = getProps();
+      const { mode, reducedMotion, visualIntensity } = getProps();
       const ms = MODE_SETTINGS[mode] ?? MODE_SETTINGS.active;
+      const intensity = INTENSITY_SETTINGS[visualIntensity] ?? INTENSITY_SETTINGS.normal;
 
       if (mode !== lastMode) { setup(mode); lastMode = mode; return; }
 
@@ -79,7 +86,7 @@ export function ThermalLifeVisualizer(props) {
       }
 
       fc++;
-      const stepEvery = reducedMotion ? ms.speed * 3 : ms.speed;
+      const stepEvery = (reducedMotion ? ms.speed * 3 : ms.speed) * intensity.speed;
       if (fc % Math.max(1, Math.round(stepEvery)) === 0) step();
       if (gen > 500) { setup(mode); return; }
 
@@ -88,7 +95,7 @@ export function ThermalLifeVisualizer(props) {
         for (let c = 0; c < COLS; c++) {
           const h = heat[r][c];
           if (h < 0.02) continue;
-          gfx.beginFill(thermalColor(h), Math.min(1, h * 1.1));
+          gfx.beginFill(thermalColor(h), Math.min(1, h * 1.1 * intensity.decay));
           gfx.drawRect(c * CELL, r * CELL, CELL - 0.5, CELL - 0.5);
           gfx.endFill();
         }

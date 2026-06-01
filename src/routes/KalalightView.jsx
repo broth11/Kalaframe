@@ -4,6 +4,8 @@ import { KalalightToolbarRail } from "../components/kalalight/KalalightToolbarRa
 import { KalalightVisualizerStage } from "../components/kalalight/KalalightVisualizerStage.jsx";
 import {
   formatKalalightInput,
+  formatKalalightParts,
+  normalizeKalalightEntry,
   parseKalalightTime,
 } from "../components/kalalight/kalalightTime.js";
 import "../components/kalalight/kalalight.css";
@@ -26,6 +28,7 @@ import {
 } from "../visualizer/visualizerRegistry.js";
 
 const INTENSITIES = ["low", "normal", "high"];
+const TOOLBAR_HIDE_DELAY_MS = 3000;
 
 function createKalalightSetup({
   durationSeconds,
@@ -62,6 +65,7 @@ export function KalalightView() {
   const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
   const hideToolbarTimerRef = useRef(null);
   const lastChimedAtRef = useRef(null);
+  const inputEditPartRef = useRef("minutes");
 
   const now = useTicker(250);
   const parsedSeconds = parseKalalightTime(inputValue);
@@ -99,7 +103,7 @@ export function KalalightView() {
     window.clearTimeout(hideToolbarTimerRef.current);
     hideToolbarTimerRef.current = window.setTimeout(() => {
       setToolbarVisible(toolbarPinned);
-    }, 2500);
+    }, TOOLBAR_HIDE_DELAY_MS);
   }
 
   useEffect(() => {
@@ -144,12 +148,21 @@ export function KalalightView() {
   }
 
   function handleInputChange(value) {
-    setInputValue(value);
+    const nextValue = normalizeKalalightEntry(value);
+    setInputValue(nextValue);
     if (timerState.status === "idle") {
-      const nextSeconds = parseKalalightTime(value);
+      const nextSeconds = parseKalalightTime(nextValue);
       setDurationSeconds(nextSeconds);
       setTimerState(createIdleTimerState(nextSeconds));
     }
+  }
+
+  function setInputCaretBeforeColon(input) {
+    window.requestAnimationFrame(() => {
+      const colonIndex = input.value.indexOf(":");
+      const position = colonIndex >= 0 ? colonIndex : input.value.length;
+      input.setSelectionRange(position, position);
+    });
   }
 
   function start() {
@@ -239,13 +252,58 @@ export function KalalightView() {
   }
 
   function handleInputKeyDown(event) {
+    const input = event.currentTarget;
+    const [minutesText = "00", secondsText = "00"] = inputValue.split(":");
+    const colonIndex = inputValue.indexOf(":");
+    const isEditingSeconds = inputEditPartRef.current === "seconds";
+
     if (event.key === "Enter") {
       event.preventDefault();
       start();
+      return;
     }
     if (event.key === "Escape") {
       event.currentTarget.blur();
+      return;
     }
+    if (event.key === ":") {
+      event.preventDefault();
+      inputEditPartRef.current = "seconds";
+      window.requestAnimationFrame(() => input.setSelectionRange(colonIndex + 1, colonIndex + 1));
+      return;
+    }
+    if (/^\d$/.test(event.key)) {
+      event.preventDefault();
+      if (isEditingSeconds) {
+        const secondsDigits = secondsText === "00" ? event.key : `${secondsText.replace(/^0+/, "")}${event.key}`;
+        const seconds = Math.min(59, Number(secondsDigits.slice(-2)) || 0);
+        handleInputChange(formatKalalightParts(Number(minutesText), seconds));
+        window.requestAnimationFrame(() => input.setSelectionRange(colonIndex + 3, colonIndex + 3));
+        return;
+      }
+
+      const minuteBase = minutesText.replace(/^0+/, "");
+      const minutes = Number(`${minuteBase}${event.key}`.slice(-2)) || 0;
+      handleInputChange(formatKalalightParts(minutes, Number(secondsText)));
+      setInputCaretBeforeColon(input);
+    }
+    if (event.key === "Backspace") {
+      event.preventDefault();
+      if (isEditingSeconds) {
+        handleInputChange(formatKalalightParts(Number(minutesText), 0));
+        window.requestAnimationFrame(() => input.setSelectionRange(colonIndex + 1, colonIndex + 1));
+        return;
+      }
+      const minuteBase = minutesText.replace(/^0+/, "");
+      const minutes = Number(minuteBase.slice(0, -1)) || 0;
+      handleInputChange(formatKalalightParts(minutes, Number(secondsText)));
+      setInputCaretBeforeColon(input);
+    }
+  }
+
+  function handleInputFocus(event) {
+    inputEditPartRef.current = "minutes";
+    setInputCaretBeforeColon(event.currentTarget);
   }
 
   useEffect(() => {
@@ -286,6 +344,7 @@ export function KalalightView() {
         isValidDuration={isValidDuration}
         onInputChange={handleInputChange}
         onInputKeyDown={handleInputKeyDown}
+        onInputFocus={handleInputFocus}
         onStart={start}
       />
       <KalalightEdgeControls

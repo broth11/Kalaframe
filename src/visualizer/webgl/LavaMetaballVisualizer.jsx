@@ -90,16 +90,25 @@ const MODE_CONFIG = {
   exam:   { speed: 0.056, blobCount: 3, modeId: 2 },
 };
 
-export function LavaMetaballVisualizer({ mode, reducedMotion, progress }) {
+const INTENSITY_SETTINGS = {
+  low: { speed: 0.72, blobCount: -1 },
+  normal: { speed: 1, blobCount: 0 },
+  high: { speed: 1.3, blobCount: 1 },
+};
+
+export function LavaMetaballVisualizer({ mode, reducedMotion, progress, visualIntensity }) {
   const config = MODE_CONFIG[mode] ?? MODE_CONFIG.active;
-  const speed  = reducedMotion ? config.speed * 0.2 : config.speed;
+  const intensity = INTENSITY_SETTINGS[visualIntensity] ?? INTENSITY_SETTINGS.normal;
+  const speed  = (reducedMotion ? config.speed * 0.2 : config.speed) * intensity.speed;
+  const blobCount = Math.max(3, config.blobCount + intensity.blobCount);
 
   // Expose current values to the rAF closure without re-initialising WebGL
-  const propsRef = useRef({ speed, blobCount: config.blobCount, modeId: config.modeId, progress });
+  const propsRef = useRef({ speed, blobCount, modeId: config.modeId, progress });
   useEffect(() => {
+    const nextIntensity = INTENSITY_SETTINGS[visualIntensity] ?? INTENSITY_SETTINGS.normal;
     propsRef.current = {
-      speed:     reducedMotion ? config.speed * 0.2 : config.speed,
-      blobCount: config.blobCount,
+      speed:     (reducedMotion ? config.speed * 0.2 : config.speed) * nextIntensity.speed,
+      blobCount: Math.max(3, config.blobCount + nextIntensity.blobCount),
       modeId:    config.modeId,
       progress:  progress ?? 0,
     };

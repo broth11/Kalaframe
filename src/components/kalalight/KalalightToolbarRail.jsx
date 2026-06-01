@@ -29,15 +29,18 @@ export function KalalightToolbarRail({
       </button>
       <button
         type="button"
-        aria-label={chimeEnabled ? "Turn chime off" : "Turn chime on"}
-        title={chimeEnabled ? "Turn chime off" : "Turn chime on"}
+        className={chimeEnabled ? "kalalight-icon-music" : "kalalight-icon-music muted"}
+        aria-label={chimeEnabled ? "Mute chime" : "Enable chime"}
+        title={chimeEnabled ? "Mute chime" : "Enable chime"}
         onClick={onToggleChime}
-      >
-        {chimeEnabled ? "Vol" : "Mute"}
-      </button>
-      <button type="button" aria-label="Open projector display" title="Open projector display" onClick={onOpenProjector}>
-        Project
-      </button>
+      />
+      <button
+        type="button"
+        className="kalalight-icon-projector"
+        aria-label="Open projector display"
+        title="Open projector display"
+        onClick={onOpenProjector}
+      />
       <button
         type="button"
         aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}

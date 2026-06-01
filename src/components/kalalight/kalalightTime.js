@@ -18,3 +18,19 @@ export function formatKalalightInput(seconds) {
   const remainingSeconds = safeSeconds % 60;
   return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
 }
+
+export function formatKalalightParts(minutes, seconds = 0) {
+  const safeMinutes = Math.max(0, Math.round(Number(minutes) || 0));
+  const safeSeconds = Math.min(59, Math.max(0, Math.round(Number(seconds) || 0)));
+  return `${String(safeMinutes).padStart(2, "0")}:${String(safeSeconds).padStart(2, "0")}`;
+}
+
+export function normalizeKalalightEntry(value) {
+  const cleaned = String(value ?? "").replace(/[^\d:]/g, "");
+  if (!cleaned) return "00:00";
+
+  const [minutesPart, secondsPart] = cleaned.split(":");
+  const minutes = Number(minutesPart || 0);
+  const seconds = secondsPart == null ? 0 : Number(secondsPart.slice(0, 2) || 0);
+  return formatKalalightParts(minutes, seconds);
+}
