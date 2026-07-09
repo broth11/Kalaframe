@@ -9,12 +9,11 @@ export function KalalightVisualizerStage({
   remainingSeconds,
   durationSeconds,
   status,
-  inputValue,
+  digitBuffer,
   isValidDuration,
-  onInputChange,
   onInputKeyDown,
-  onInputFocus,
-  onInputBlur,
+  onInputWheel,
+  onPreset,
   onStart,
 }) {
   const mode = getMode("active");
@@ -34,13 +33,12 @@ export function KalalightVisualizerStage({
       />
       <KalalightCountdownOverlay
         status={status}
-        inputValue={inputValue}
+        digitBuffer={digitBuffer}
         remainingSeconds={remainingSeconds}
         isValidDuration={isValidDuration}
-        onInputChange={onInputChange}
         onInputKeyDown={onInputKeyDown}
-        onInputFocus={onInputFocus}
-        onInputBlur={onInputBlur}
+        onInputWheel={onInputWheel}
+        onPreset={onPreset}
         onStart={onStart}
       />
     </section>

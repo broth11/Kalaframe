@@ -3,9 +3,10 @@ import { KalalightEdgeControls } from "../components/kalalight/KalalightEdgeCont
 import { KalalightToolbarRail } from "../components/kalalight/KalalightToolbarRail.jsx";
 import { KalalightVisualizerStage } from "../components/kalalight/KalalightVisualizerStage.jsx";
 import {
-  formatKalalightInput,
-  normalizeKalalightDisplay,
-  parseKalalightTime,
+  digitsToSeconds,
+  popTimerDigit,
+  pushTimerDigit,
+  secondsToDigits,
 } from "../components/kalalight/kalalightTime.js";
 import "../components/kalalight/kalalight.css";
 import { useDisplayPublisher } from "../messaging/useDisplayPublisher.js";
@@ -51,8 +52,7 @@ function createKalalightSetup({
 }
 
 export function KalalightView() {
-  // Editing buffer — raw text the user types; normalised on blur/Enter/Start
-  const [timeInputText, setTimeInputText] = useState("");
+  const [digitBuffer, setDigitBuffer] = useState("");
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [timerState, setTimerState] = useState(() => createIdleTimerState(0));
   const [selectedVisualizerId, setSelectedVisualizerId] = useState(
@@ -67,7 +67,7 @@ export function KalalightView() {
   const lastChimedAtRef = useRef(null);
 
   const now = useTicker(250);
-  const parsedSeconds = parseKalalightTime(timeInputText);
+  const parsedSeconds = digitsToSeconds(digitBuffer);
   const isValidDuration = parsedSeconds > 0;
   const remainingSeconds = getRemainingSeconds(timerState, now);
   const progress = getProgress(timerState, now);
@@ -141,55 +141,56 @@ export function KalalightView() {
   // Set input text + canonical seconds together (used by +/- minute, reset, etc.)
   function updateInputFromSeconds(nextSeconds) {
     const safeSeconds = Math.max(0, Math.round(nextSeconds));
-    setTimeInputText(safeSeconds === 0 ? "" : formatKalalightInput(safeSeconds));
+    setDigitBuffer(secondsToDigits(safeSeconds));
     setDurationSeconds(safeSeconds);
     setTimerState(createIdleTimerState(safeSeconds));
   }
 
-  // While typing — just store the raw text; allow digits and at most one colon
-  function handleInputChange(raw) {
-    const cleaned = raw
-      .replace(/[^\d:]/g, "")           // strip non-digit/colon
-      .replace(/(:.*?):.*$/, "$1");      // keep only the first colon
-    setTimeInputText(cleaned);
+  function setIdleSeconds(seconds) {
+    updateInputFromSeconds(seconds);
   }
 
-  // Normalise on blur; leave blank if empty
-  function handleInputBlur() {
-    if (!timeInputText.trim()) return;
-    const secs = parseKalalightTime(timeInputText);
-    setTimeInputText(secs > 0 ? formatKalalightInput(secs) : "");
-    setDurationSeconds(secs);
-    setTimerState(createIdleTimerState(secs));
-  }
-
-  // Select-all on focus so the user can just start typing a new value
-  function handleInputFocus(event) {
-    event.currentTarget.select();
-  }
-
-  // Enter → normalise + start; Escape → blur
   function handleInputKeyDown(event) {
+    if (/^\d$/.test(event.key)) {
+      event.preventDefault();
+      setDigitBuffer((current) => pushTimerDigit(current, event.key));
+      return;
+    }
+    if (event.key === "Backspace" || event.key === "Delete") {
+      event.preventDefault();
+      setDigitBuffer((current) => popTimerDigit(current));
+      return;
+    }
     if (event.key === "Enter") {
       event.preventDefault();
-      const secs = parseKalalightTime(timeInputText);
-      setTimeInputText(normalizeKalalightDisplay(timeInputText));
-      if (secs > 0) {
-        setDurationSeconds(secs);
-        setTimerState(startTimer(secs));
-        lastChimedAtRef.current = null;
-      }
+      start();
       return;
     }
     if (event.key === "Escape") {
+      event.preventDefault();
+      updateInputFromSeconds(0);
       event.currentTarget.blur();
+      return;
+    }
+    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+      event.preventDefault();
+      const delta = event.shiftKey ? 10 : 60;
+      const direction = event.key === "ArrowUp" ? 1 : -1;
+      setIdleSeconds(Math.max(0, digitsToSeconds(digitBuffer) + direction * delta));
     }
   }
 
+  function handleInputWheel(event) {
+    event.preventDefault();
+    const delta = event.shiftKey ? 10 : 60;
+    const direction = event.deltaY < 0 ? 1 : -1;
+    setIdleSeconds(Math.max(0, digitsToSeconds(digitBuffer) + direction * delta));
+  }
+
   function start() {
-    const secs = parseKalalightTime(timeInputText);
+    const secs = digitsToSeconds(digitBuffer);
     if (secs <= 0) return;
-    setTimeInputText(formatKalalightInput(secs));
+    setDigitBuffer(secondsToDigits(secs));
     setDurationSeconds(secs);
     setTimerState(startTimer(secs));
     lastChimedAtRef.current = null;
@@ -210,7 +211,7 @@ export function KalalightView() {
   function reset() {
     if (durationSeconds > 0) {
       setTimerState(createIdleTimerState(durationSeconds));
-      setTimeInputText(formatKalalightInput(durationSeconds));
+      setDigitBuffer(secondsToDigits(durationSeconds));
     } else {
       updateInputFromSeconds(0);
     }
@@ -227,7 +228,7 @@ export function KalalightView() {
       updateInputFromSeconds(60);
       return;
     }
-    updateInputFromSeconds(parseKalalightTime(timeInputText) + 60);
+    updateInputFromSeconds(digitsToSeconds(digitBuffer) + 60);
   }
 
   function subtractMinute() {
@@ -243,7 +244,7 @@ export function KalalightView() {
       return;
     }
     if (timerState.status === "finished") return;
-    updateInputFromSeconds(Math.max(0, parseKalalightTime(timeInputText) - 60));
+    updateInputFromSeconds(Math.max(0, digitsToSeconds(digitBuffer) - 60));
   }
 
   function cycleVisualizer(offset) {
@@ -275,7 +276,9 @@ export function KalalightView() {
 
   useEffect(() => {
     function handleKeyDown(event) {
-      const isInput = event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement;
+      const isInput = event.target instanceof HTMLInputElement
+        || event.target instanceof HTMLTextAreaElement
+        || (event.target instanceof HTMLElement && event.target.closest('[role="textbox"]'));
       if (isInput) return;
 
       if (event.key === "ArrowLeft") cycleVisualizer(-1);
@@ -306,12 +309,11 @@ export function KalalightView() {
         remainingSeconds={remainingSeconds}
         durationSeconds={durationSeconds}
         status={status}
-        inputValue={timeInputText}
+        digitBuffer={digitBuffer}
         isValidDuration={isValidDuration}
-        onInputChange={handleInputChange}
         onInputKeyDown={handleInputKeyDown}
-        onInputFocus={handleInputFocus}
-        onInputBlur={handleInputBlur}
+        onInputWheel={handleInputWheel}
+        onPreset={(minutes) => updateInputFromSeconds(minutes * 60)}
         onStart={start}
       />
       <KalalightEdgeControls

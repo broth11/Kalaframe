@@ -21,6 +21,12 @@
 .kalalight-stage > .inkblot-svg-visualizer,
 .kalalight-stage > .facemelt-visualizer,
 .kalalight-stage > .facemelt-svg-visualizer,
+.kalalight-stage > .orbit-isle-visualizer,
+.kalalight-stage > .prism-drift-visualizer,
+.kalalight-stage > .aurora-glass-visualizer,
+.kalalight-stage > .lantern-float-visualizer,
+.kalalight-stage > .confetti-physics-visualizer,
+.kalalight-stage > .boids-school-visualizer,
 .kalalight-stage > canvas {
   z-index: 1;
 }
@@ -61,12 +67,50 @@
   outline: none;
 }
 
-.kalalight-time-input::placeholder {
-  color: rgba(255, 255, 255, 0.25);
+.kalalight-time-input {
+  cursor: text;
+  user-select: none;
 }
 
-.kalalight-time-input::selection {
+.kalalight-time-input:focus-visible {
+  border-radius: 24px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.42);
+}
+
+.kalalight-digit-placeholder {
+  color: rgba(255, 255, 255, 0.25);
+  text-shadow: none;
+}
+
+.kalalight-digit-active {
+  color: inherit;
+}
+
+.kalalight-presets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: min(90vw, 720px);
+}
+
+.kalalight-presets button {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 9px 15px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 750;
+  backdrop-filter: blur(10px);
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.kalalight-presets button:hover,
+.kalalight-presets button:focus-visible {
   background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
 }
 
 .kalalight-start-button {
@@ -93,6 +137,25 @@
 
 .kalalight-start-button:hover {
   background: rgba(255, 255, 255, 0.22);
+}
+
+.kalalight-stage:has(.ink-koi-visualizer) .kalalight-time-input,
+.kalalight-stage:has(.ink-koi-visualizer) .kalalight-time-display {
+  color: #111815;
+  text-shadow:
+    0 2px 2px rgba(255, 255, 255, 0.9),
+    0 10px 28px rgba(255, 255, 255, 0.7);
+}
+
+.kalalight-stage:has(.ink-koi-visualizer) .kalalight-digit-placeholder {
+  color: rgba(17, 24, 21, 0.24);
+}
+
+.kalalight-stage:has(.ink-koi-visualizer) .kalalight-presets button,
+.kalalight-stage:has(.ink-koi-visualizer) .kalalight-start-button {
+  border-color: rgba(17, 24, 21, 0.2);
+  background: rgba(255, 255, 255, 0.52);
+  color: #111815;
 }
 
 .kalalight-edge-controls {

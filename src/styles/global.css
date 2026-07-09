@@ -1100,6 +1100,15 @@ legend {
   --timer-outline: rgba(255, 255, 255, 0.42);
 }
 
+.projector-shell.theme-inkKoi {
+  background: #f6f3e8;
+  --timer-text: #111815;
+  --timer-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.9),
+    0 10px 34px rgba(255, 255, 255, 0.72);
+  --timer-outline: rgba(255, 255, 255, 0.5);
+}
+
 .inkblot-svg-visualizer {
   position: absolute;
   inset: 0;
@@ -1118,16 +1127,53 @@ legend {
 .lava-visualizer,
 .lissajous-visualizer,
 .facemelt-visualizer,
-.facemelt-svg-visualizer {
+.facemelt-svg-visualizer,
+.fireflies-visualizer,
+.ocean-depths-visualizer,
+.star-voyage-visualizer,
+.garden-bloom-visualizer,
+.pixel-quest-visualizer,
+.jelly-drift-visualizer,
+.comet-trails-visualizer,
+.balloon-rise-visualizer,
+.crystal-cave-visualizer,
+.ink-koi-visualizer,
+.orbit-isle-visualizer,
+.prism-drift-visualizer,
+.aurora-glass-visualizer,
+.lantern-float-visualizer,
+.confetti-physics-visualizer,
+.boids-school-visualizer {
   position: absolute;
   inset: 0;
   overflow: hidden;
   z-index: 1;
 }
 
+.visualizer-loading-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #030718;
+}
+
 .lava-visualizer canvas,
 .lissajous-visualizer canvas,
-.facemelt-visualizer canvas {
+.facemelt-visualizer canvas,
+.fireflies-visualizer canvas,
+.ocean-depths-visualizer canvas,
+.star-voyage-visualizer canvas,
+.garden-bloom-visualizer canvas,
+.pixel-quest-visualizer canvas,
+.jelly-drift-visualizer canvas,
+.comet-trails-visualizer canvas,
+.balloon-rise-visualizer canvas,
+.crystal-cave-visualizer canvas,
+.ink-koi-visualizer canvas,
+.orbit-isle-visualizer canvas,
+.prism-drift-visualizer canvas,
+.confetti-physics-visualizer canvas,
+.boids-school-visualizer canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;

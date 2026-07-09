@@ -1,39 +1,74 @@
 import { formatTime } from "../../timer/formatTime.js";
+import { formatDigitBuffer } from "./kalalightTime.js";
+
+const PRESETS = [1, 5, 10, 15, 20, 30];
+
+function DigitBufferDisplay({ buffer }) {
+  const formatted = formatDigitBuffer(buffer);
+  let remainingActive = buffer.length;
+
+  return [...formatted].map((character, index) => {
+    const isDigit = /\d/.test(character);
+    const digitsAfter = [...formatted.slice(index + 1)].filter((item) => /\d/.test(item)).length;
+    const active = isDigit && digitsAfter < remainingActive;
+    return (
+      <span
+        // Position is stable within a formatted buffer.
+        key={`${index}-${character}`}
+        className={active || !isDigit ? "kalalight-digit-active" : "kalalight-digit-placeholder"}
+      >
+        {character}
+      </span>
+    );
+  });
+}
 
 export function KalalightCountdownOverlay({
   status,
-  inputValue,
+  digitBuffer,
   remainingSeconds,
   isValidDuration,
-  onInputChange,
   onInputKeyDown,
-  onInputFocus,
-  onInputBlur,
+  onInputWheel,
+  onPreset,
   onStart,
 }) {
   const isEditing = status === "idle" || status === "ready";
-  const displayValue = isEditing ? inputValue : formatTime(remainingSeconds);
 
   return (
     <div className="kalalight-countdown-layer">
       <div className="kalalight-countdown-stack">
         {isEditing ? (
-          <input
+          <div
             className="kalalight-time-input"
-            value={displayValue}
-            placeholder="0:00"
-            inputMode="numeric"
-            aria-label="Timer duration"
-            onChange={(event) => onInputChange(event.target.value)}
+            tabIndex={0}
+            role="textbox"
+            aria-label={`Timer duration, ${formatDigitBuffer(digitBuffer)}. Type digits from right to left.`}
             onKeyDown={onInputKeyDown}
-            onFocus={onInputFocus}
-            onBlur={onInputBlur}
-          />
+            onWheel={onInputWheel}
+          >
+            <DigitBufferDisplay buffer={digitBuffer} />
+          </div>
         ) : (
-          <div className="kalalight-time-display" aria-live="polite">
-            {displayValue}
+          <div
+            className="kalalight-time-display"
+            role="timer"
+            aria-live="polite"
+            aria-label={`Time remaining ${formatTime(remainingSeconds)}`}
+          >
+            {formatTime(remainingSeconds)}
           </div>
         )}
+
+        {isEditing ? (
+          <div className="kalalight-presets" aria-label="Quick timer presets">
+            {PRESETS.map((minutes) => (
+              <button type="button" key={minutes} onClick={() => onPreset(minutes)}>
+                {minutes} min
+              </button>
+            ))}
+          </div>
+        ) : null}
 
         <button
           type="button"

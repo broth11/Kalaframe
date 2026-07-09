@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getVisualizer, normalizeThemeId } from "./visualizerRegistry.js";
 
 export function VisualizerHost(props) {
@@ -5,5 +6,9 @@ export function VisualizerHost(props) {
   const visualizer = getVisualizer(theme);
   const VisualizerComponent = visualizer.component;
 
-  return <VisualizerComponent key={theme} {...props} theme={theme} />;
+  return (
+    <Suspense fallback={<div className="visualizer-loading-fallback" aria-hidden="true" />}>
+      <VisualizerComponent key={theme} {...props} theme={theme} />
+    </Suspense>
+  );
 }

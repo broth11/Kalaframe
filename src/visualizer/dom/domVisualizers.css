@@ -1,0 +1,158 @@
+.aurora-glass-visualizer,
+.lantern-float-visualizer {
+  overflow: hidden;
+  background: #030718;
+}
+
+.aurora-glass-field,
+.lantern-sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.aurora-glass-field {
+  background: radial-gradient(circle at 50% 120%, #162c55 0%, #07122f 42%, #020617 82%);
+  filter: saturate(var(--intensity-saturation)) hue-rotate(calc(var(--progress) * 60deg));
+}
+
+.aurora-glass-blob {
+  position: absolute;
+  left: var(--blob-left);
+  top: var(--blob-top);
+  width: min(55vw, 680px);
+  height: min(55vw, 680px);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--blob-color) 0%, transparent 68%);
+  filter: blur(90px);
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  animation: aurora-glass-drift var(--animation-duration) ease-in-out var(--blob-delay) infinite alternate;
+}
+
+.aurora-glass-visualizer[data-low] .aurora-glass-blob {
+  opacity: 0.3;
+  mix-blend-mode: normal;
+}
+
+.aurora-glass-sheen {
+  position: absolute;
+  inset: 12% 8%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8vw;
+  background: linear-gradient(115deg, transparent 22%, rgba(255, 255, 255, 0.08) 48%, transparent 72%);
+  background-size: 220% 100%;
+  box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(2px);
+  animation: aurora-glass-sheen var(--long-animation-duration) linear infinite;
+}
+
+.aurora-glass-visualizer[data-low] .aurora-glass-sheen {
+  display: none;
+}
+
+.aurora-glass-shimmer {
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(135deg, transparent 40%, rgba(190, 247, 255, 0.16) 49%, transparent 58%);
+  animation: aurora-glass-shimmer var(--animation-duration) linear infinite;
+  mix-blend-mode: screen;
+}
+
+.lantern-sky {
+  background:
+    radial-gradient(ellipse at 50% 105%, rgba(255, 116, 62, calc(0.15 + var(--progress) * 0.35)), transparent 50%),
+    linear-gradient(#04071c, #14123a 58%, #382149);
+  filter: saturate(var(--intensity-saturation));
+}
+
+.lantern-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff8df;
+}
+
+.lantern {
+  position: absolute;
+  left: var(--lantern-x);
+  bottom: -15%;
+  width: 32px;
+  height: 43px;
+  border-radius: 42% 42% 34% 34%;
+  background:
+    linear-gradient(90deg, rgba(105, 28, 18, 0.3), transparent 24%, transparent 76%, rgba(105, 28, 18, 0.3)),
+    #ff9b45;
+  box-shadow:
+    inset 0 0 12px #fff1a8,
+    0 0 25px rgba(255, 137, 57, 0.55);
+  filter: hue-rotate(var(--lantern-hue));
+  transform-origin: 50% 100%;
+  animation:
+    lantern-rise var(--animation-duration) linear var(--lantern-delay) infinite,
+    lantern-sway 5s ease-in-out var(--lantern-delay) infinite alternate;
+}
+
+.lantern::before,
+.lantern::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  height: 3px;
+  border-radius: 2px;
+  background: #4a241d;
+}
+
+.lantern::before { top: -2px; }
+.lantern::after { bottom: -2px; }
+
+.lantern b {
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 5px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff6b0;
+  transform: translateX(-50%);
+}
+
+.lantern-float-visualizer[data-extras] .lantern b {
+  animation: lantern-flicker 0.7s steps(2) infinite;
+}
+
+.lantern-float-visualizer[data-low] .lantern {
+  box-shadow: inset 0 0 10px rgba(255, 241, 168, 0.6);
+  animation: lantern-rise var(--animation-duration) linear var(--lantern-delay) infinite;
+}
+
+@keyframes aurora-glass-drift {
+  from { transform: translate3d(-12%, -8%, 0) scale(0.86); }
+  to { transform: translate3d(18%, 15%, 0) scale(1.18); }
+}
+
+@keyframes aurora-glass-sheen {
+  from { background-position: 180% 0; }
+  to { background-position: -120% 0; }
+}
+
+@keyframes aurora-glass-shimmer {
+  from { transform: translate3d(-25%, -20%, 0); }
+  to { transform: translate3d(25%, 20%, 0); }
+}
+
+@keyframes lantern-rise {
+  from { translate: 0 0; scale: var(--lantern-scale); }
+  to { translate: 0 -135vh; scale: var(--lantern-scale); }
+}
+
+@keyframes lantern-sway {
+  from { margin-left: -20px; rotate: -5deg; }
+  to { margin-left: 20px; rotate: 5deg; }
+}
+
+@keyframes lantern-flicker {
+  50% { opacity: 0.5; transform: translateX(-50%) scale(1.5); }
+}
